@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using backend.Models;
+using backend.Services;
 
 namespace backend.Controllers
 {
@@ -7,19 +8,17 @@ namespace backend.Controllers
     [Route("api/[controller]")]
     public class SimulationController : ControllerBase
     {
+        private readonly SimulationService _simulationService;
+
+        public SimulationController()
+        {
+            _simulationService = new SimulationService();
+        }
+
         [HttpPost]
         public IActionResult Simulate([FromBody] SimulationRequest request)
         {
-            // Temporary placeholder logic
-            var result = new SimulationResult
-            {
-                TotalWagered = request.Rounds * request.BetSize,
-                TotalReturned = request.Rounds * request.BetSize * 0.95, // temporary 95% RTP
-                RTP = 0.95,
-                Variance = 0.02,
-                Outcomes = Enumerable.Repeat(request.BetSize * 0.95, request.Rounds).ToList()
-            };
-
+            var result = _simulationService.RunSimulation(request);
             return Ok(result);
         }
     }
