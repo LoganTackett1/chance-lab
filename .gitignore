@@ -1,0 +1,40 @@
+# Node / Frontend
+node_modules/
+dist/
+.env
+.env.*
+.vscode/
+.DS_Store
+*.log
+
+# .NET / Backend
+bin/
+obj/
+*.user
+*.suo
+*.vs/
+*.dbmdl
+*.bak
+*.ldf
+*.ndf
+*.db
+*.log
+*.pdb
+*.cache
+*.ide/
+*.tmp
+*.swp
+
+# ASP.NET publish outputs
+/wwwroot/
+**/app.publish/
+**/Properties/launchSettings.json.user
+
+# Rider / VSCode / VS settings
+.idea/
+.vscode/
+*.userprefs
+
+# Docker
+docker-compose.override.yml
+*.pid
