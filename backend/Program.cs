@@ -3,9 +3,12 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Configuration.AddEnvironmentVariables();
+
 //Services
 builder.Services.AddControllers();
 builder.Services.AddScoped<SimulationService>();
+builder.Services.AddSingleton<MongoService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
