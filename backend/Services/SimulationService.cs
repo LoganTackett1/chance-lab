@@ -18,7 +18,13 @@ namespace backend.Services
             {
                 double payout = request.GameType.ToLower() switch
                 {
-                    "slot" => RunSlotRound(request.BetSize),
+                    "slot" => RunSlotRound(
+                        request.BetSize,
+                        request.SmallWinChance,
+                        request.BigWinChance,
+                        request.SmallWinMultiplier,
+                        request.BigWinMultiplier
+                    ),
                     "sports" => RunSportsRound(request.BetSize),
                     _ => 0.0
                 };
@@ -26,6 +32,7 @@ namespace backend.Services
                 outcomes.Add(payout);
                 totalReturned += payout;
             }
+
 
             double rtp = totalReturned / totalWagered;
             double variance = CalculateVariance(outcomes, request.BetSize);
@@ -40,13 +47,12 @@ namespace backend.Services
             };
         }
 
-        private double RunSlotRound(double bet)
+        private double RunSlotRound(double bet, double smallWinChance = 0.15, double bigWinChance = 0.05, double smallMult = 2.0, double bigMult = 10.0)
         {
-            // 80% of spins lose, 15% small win, 5% big win
             double roll = _random.NextDouble();
-            if (roll < 0.8) return 0;
-            if (roll < 0.95) return bet * 2;
-            return bet * 10;
+            if (roll < 1 - (smallWinChance + bigWinChance)) return 0;      // lose
+            if (roll < 1 - bigWinChance) return bet * smallMult;           // small win
+            return bet * bigMult;                                          // big win
         }
 
         private double RunSportsRound(double bet)

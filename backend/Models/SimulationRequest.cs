@@ -5,6 +5,12 @@ namespace backend.Models
         public string GameType { get; set; } = "slot";
         public int Rounds { get; set; } = 100;
         public double BetSize { get; set; } = 1.0;
+
+        // Optional slot-specific parameters
+        public double SmallWinChance { get; set; } = 0.15;
+        public double BigWinChance { get; set; } = 0.05;
+        public double SmallWinMultiplier { get; set; } = 2.0;
+        public double BigWinMultiplier { get; set; } = 10.0;
     }
 
     public class SimulationResult
@@ -16,3 +22,4 @@ namespace backend.Models
         public List<double> Outcomes { get; set; } = new();
     }
 }
+
