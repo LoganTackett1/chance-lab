@@ -1,8 +1,10 @@
 using backend.Services;
 using Microsoft.OpenApi.Models;
+using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
+Env.Load();
 builder.Configuration.AddEnvironmentVariables();
 
 //Services
