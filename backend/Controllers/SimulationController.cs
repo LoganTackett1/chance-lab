@@ -10,9 +10,9 @@ namespace backend.Controllers
     {
         private readonly SimulationService _simulationService;
 
-        public SimulationController()
+        public SimulationController(SimulationService simulationService)
         {
-            _simulationService = new SimulationService();
+            _simulationService = simulationService;
         }
 
         [HttpPost]

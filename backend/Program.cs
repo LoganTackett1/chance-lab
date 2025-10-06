@@ -1,9 +1,11 @@
+using backend.Services;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
 //Services
 builder.Services.AddControllers();
+builder.Services.AddScoped<SimulationService>();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>
 {
