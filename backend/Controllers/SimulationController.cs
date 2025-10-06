@@ -37,6 +37,13 @@ namespace backend.Controllers
             return Ok(result);
         }
 
+        [HttpGet("history")]
+        public async Task<IActionResult> GetHistory()
+        {
+            var records = await _mongo.GetRecentRecordsAsync(10);
+            return Ok(records);
+        }
+
         [HttpGet("defaults")]
         public IActionResult GetDefaults()
         {
