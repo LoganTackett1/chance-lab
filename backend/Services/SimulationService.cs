@@ -25,7 +25,13 @@ namespace backend.Services
                         request.SmallWinMultiplier,
                         request.BigWinMultiplier
                     ),
-                    "sports" => RunSportsRound(request.BetSize),
+                    "sports" => RunSportsRound(
+                        request.BetSize,
+                        request.WinChance,
+                        request.PushChance,
+                        request.OddsType,
+                        request.OddsValue
+                    ),
                     _ => 0.0
                 };
 
@@ -47,7 +53,28 @@ namespace backend.Services
             };
         }
 
-        private double RunSlotRound(double bet, double smallWinChance = 0.15, double bigWinChance = 0.05, double smallMult = 2.0, double bigMult = 10.0)
+        private double ConvertOddsToMultiplier(string oddsType, double oddsValue)
+        {
+            if (oddsType.ToLower() == "american")
+            {
+                if (oddsValue > 0)
+                    return (oddsValue / 100.0) + 1.0; // e.g. +150 to 2.5x
+                else
+                    return (100.0 / Math.Abs(oddsValue)) + 1.0; // e.g. -120 to 1.833x
+            }
+            else
+            {
+                // Decimal odds (already multiplier form)
+                return oddsValue;
+            }
+        }
+
+        private double RunSlotRound(
+            double bet,
+            double smallWinChance = 0.15,
+            double bigWinChance = 0.05,
+            double smallMult = 2.0,
+            double bigMult = 10.0)
         {
             double roll = _random.NextDouble();
             if (roll < 1 - (smallWinChance + bigWinChance)) return 0;      // lose
@@ -55,13 +82,22 @@ namespace backend.Services
             return bet * bigMult;                                          // big win
         }
 
-        private double RunSportsRound(double bet)
+        private double RunSportsRound(
+            double bet,
+            double winChance,
+            double pushChance,
+            string oddsType,
+            double oddsValue)
         {
-            // 50% win (2x), 45% lose, 5% jackpot
+            double payoutMultiplier = ConvertOddsToMultiplier(oddsType, oddsValue);
             double roll = _random.NextDouble();
-            if (roll < 0.45) return 0;
-            if (roll < 0.95) return bet * 2;
-            return bet * 5;
+
+            if (roll < winChance)
+                return bet * payoutMultiplier; // win
+            else if (roll < winChance + pushChance)
+                return bet; // push (refund)
+            else
+                return 0; // loss
         }
 
         private double CalculateVariance(List<double> outcomes, double meanBet)
