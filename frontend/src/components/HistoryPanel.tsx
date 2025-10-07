@@ -1,59 +1,145 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { getHistory } from "../api/api";
 
-export default function HistoryPanel() {
-  const [history, setHistory] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
+interface SimulationRecord {
+  id?: string;
+  gameType: string;
+  rtp: number;
+  variance: number;
+  createdAt?: string;
+  betSize?: number;
+}
 
-  useEffect(() => {
-    getHistory()
-      .then((data) => setHistory(data))
-      .catch(console.error)
-      .finally(() => setLoading(false));
+interface HistoryPanelProps {
+  refreshTrigger?: number; // incremented by parent when new sim runs
+}
+
+export default function HistoryPanel({ refreshTrigger }: HistoryPanelProps) {
+  const [history, setHistory] = useState<SimulationRecord[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
+
+  const fetchHistory = useCallback(async () => {
+    try {
+      setLoading(true);
+      const data = await getHistory();
+      setHistory(data || []);
+      setLastUpdated(new Date());
+    } catch (err) {
+      console.error("Failed to load simulation history:", err);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  // Load on mount
+  useEffect(() => {
+    fetchHistory();
+  }, [fetchHistory]);
+
+  // Refresh when a new simulation finishes
+  useEffect(() => {
+    if (refreshTrigger !== undefined) {
+      fetchHistory();
+    }
+  }, [refreshTrigger, fetchHistory]);
+
+  // Auto-refresh every 10s
+  useEffect(() => {
+    const interval = setInterval(fetchHistory, 10000);
+    return () => clearInterval(interval);
+  }, [fetchHistory]);
 
   return (
     <div
       id="history-panel-container"
-      className="max-w-3xl mx-auto mt-8 p-6 bg-white rounded-2xl shadow-md"
+      className="max-w-3xl mx-auto p-6 mt-8 bg-white rounded-2xl shadow-md"
     >
-      <h2 id="history-panel-title" className="text-2xl font-semibold mb-4 text-center">
-        Recent Simulations
-      </h2>
+      {/* Header */}
+      <div className="flex justify-between items-center mb-4 gap-[10px]">
+        <h2
+          id="history-panel-title"
+          className="text-xl font-semibold text-gray-800"
+        >
+          Recent Simulations
+        </h2>
+        {/* Live indicator */}
+        <div className="flex items-center space-x-2">
+          <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
+          <p className="text-xs text-gray-500">
+            Live (updates every 10s)
+          </p>
+        </div>
+      </div>
 
-      {loading ? (
-        <p id="history-loading" className="text-center text-gray-500">
+      {/* Loading */}
+      {loading && (
+        <p id="history-panel-loading" className="text-gray-500 text-center">
           Loading...
         </p>
-      ) : history.length === 0 ? (
-        <p id="history-empty" className="text-center text-gray-400">
-          No recent simulations yet.
+      )}
+
+      {/* Empty state */}
+      {!loading && history.length === 0 && (
+        <p id="history-panel-empty" className="text-gray-500 text-center">
+          No recent simulations found.
         </p>
-      ) : (
-        <ul id="history-list" className="divide-y divide-gray-200">
-          {history.map((item, idx) => (
+      )}
+
+      {/* Simulation list */}
+      <ul id="history-list" className="divide-y divide-gray-200">
+        {history.map((item, i) => {
+          const dateStr = item.createdAt
+            ? new Date(item.createdAt).toLocaleString()
+            : "Unknown Date";
+
+          return (
             <li
-              key={idx}
-              id={`history-item-${idx}`}
-              className="py-3 flex items-center justify-between hover:bg-gray-50 rounded-md px-2 transition-colors"
+              key={item.id ?? i}
+              className="py-3 flex flex-col sm:flex-row justify-between sm:items-center"
             >
-              <div id={`history-info-${idx}`} className="flex flex-col">
-                <span className="font-medium text-gray-800">
-                  {item.gameType?.toUpperCase() || "Unknown"}
-                </span>
-                <span className="text-sm text-gray-500">
-                  {new Date(item.timestamp).toLocaleString()}
-                </span>
-              </div>
-              <div id={`history-stats-${idx}`} className="text-right">
-                <p className="text-blue-700 text-sm font-medium">
-                  RTP: {item.rtp?.toFixed(2)}%
+              <div className="mb-2 sm:mb-0">
+                <p className="font-semibold text-gray-800 capitalize">
+                  {item.gameType}
                 </p>
-                <p className="text-gray-600 text-sm">Var: {item.variance?.toFixed(2)}</p>
+                <p className="text-sm text-gray-500">{dateStr}</p>
+              </div>
+
+              <div className="text-right">
+                <p className="text-sm text-gray-600">
+                  RTP:{" "}
+                  <span className="font-semibold text-blue-700">
+                    {item.rtp?.toFixed(2)}%
+                  </span>
+                </p>
+                <p className="text-sm text-gray-600">
+                  Variance:{" "}
+                  <span className="font-semibold text-blue-700">
+                    {item.variance?.toFixed(2)}
+                  </span>
+                </p>
+                {item.betSize !== undefined && (
+                  <p className="text-sm text-gray-600">
+                    Bet Size:{" "}
+                    <span className="font-semibold text-blue-700">
+                      {item.betSize.toFixed(2)}
+                    </span>
+                  </p>
+                )}
               </div>
             </li>
-          ))}
-        </ul>
+          );
+        })}
+      </ul>
+
+      {/* Last Updated */}
+      {lastUpdated && (
+        <p
+          id="history-last-updated"
+          className="text-xs text-gray-400 text-center mt-4"
+        >
+          Last updated: {lastUpdated.toLocaleTimeString()}
+        </p>
       )}
     </div>
   );

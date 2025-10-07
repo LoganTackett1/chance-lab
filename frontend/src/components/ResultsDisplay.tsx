@@ -116,7 +116,7 @@ export default function ResultsDisplay({ result }: ResultsDisplayProps) {
         </div>
       </div>
 
-      {/* 📈 Cumulative Return Chart */}
+      {/* Cumulative Return Chart */}
       <div id="results-chart" className="h-80">
         <Line
           data={chartData}
