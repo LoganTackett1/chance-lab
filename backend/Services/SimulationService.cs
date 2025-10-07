@@ -45,6 +45,7 @@ namespace backend.Services
 
             return new SimulationResult
             {
+                Request = request,
                 TotalWagered = totalWagered,
                 TotalReturned = totalReturned,
                 RTP = Math.Round(rtp, 3),

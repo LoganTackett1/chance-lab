@@ -21,8 +21,9 @@ namespace backend.Models
         public double OddsValue { get; set; } = 1.9; // or +150 / -120 etc.
     }
 
-    public class SimulationResult
+    public class SimulationResult 
     {
+        public SimulationRequest? Request { get; set; }
         public double TotalWagered { get; set; }
         public double TotalReturned { get; set; }
         public double RTP { get; set; }

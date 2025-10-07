@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { getDefaults, runSimulation } from "../api/api";
 import SlotForm from "./SlotForm";
 import SportsForm from "./SportsForm";
