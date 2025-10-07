@@ -14,15 +14,34 @@ export default function HomePage() {
 
   return (
     <div id="home-page" className="min-h-screen bg-gray-100 py-10">
+      {/* Header */}
       <h1
         id="app-title"
-        className="text-3xl font-bold text-center mb-10 text-gray-800"
+        className="text-3xl font-bold text-center mb-4 text-gray-800"
       >
-        Simulation Playground
+        Simulation Performance Dashboard
       </h1>
 
+      {/* Intro section */}
+      <div
+        id="intro-section"
+        className="max-w-2xl mx-auto text-center text-gray-700 mb-10 px-6"
+      >
+        <p className="mb-4">
+          This dashboard allows you to run and analyze probability-based
+          simulations for <strong>slot</strong> and <strong>sports</strong>{" "}
+          betting models.
+        </p>
+        <p>
+          Configure your parameters, run a simulation, and review results such as
+          RTP (Return to Player), variance, and win rate. Recent simulations are
+          automatically logged below for comparison.
+        </p>
+      </div>
+
+      {/* Main content */}
       <div id="main-content" className="flex flex-col items-center space-y-8">
-        <SimulationForm onResult={setResult} />
+        <SimulationForm onResult={handleSimulationResult} />
         <ResultsDisplay result={result} />
         <HistoryPanel refreshTrigger={refreshTrigger} />
       </div>

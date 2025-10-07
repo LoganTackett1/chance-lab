@@ -1,13 +1,13 @@
-const API_BASE = "https://localhost:5001/api/simulation";
+const API_BASE = import.meta.env.VITE_API_URL ?? "http://localhost:5000";
 
 export async function getDefaults() {
-  const res = await fetch(`${API_BASE}/defaults`);
-  if (!res.ok) throw new Error("Failed to load defaults");
+  const res = await fetch(`${API_BASE}/api/simulation/defaults`);
+  if (!res.ok) throw new Error("Failed to fetch defaults");
   return res.json();
 }
 
 export async function runSimulation(payload: any) {
-  const res = await fetch(API_BASE, {
+  const res = await fetch(`${API_BASE}/api/simulation`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
@@ -17,7 +17,7 @@ export async function runSimulation(payload: any) {
 }
 
 export async function getHistory() {
-  const res = await fetch(`${API_BASE}/history`);
+  const res = await fetch(`${API_BASE}/api/simulation/history`);
   if (!res.ok) throw new Error("Failed to fetch history");
   return res.json();
 }
